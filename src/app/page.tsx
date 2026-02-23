@@ -54,6 +54,18 @@ export default function Home() {
           ))}
         </div>
       </section>
-    </main>
+      <footer className="border-t border-white/10 py-8 px-6 text-center">
+        <p className="text-gray-500 text-sm">
+          Designed & built by{" "}
+          <a href="https://soyambajgain.com.np"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-400 hover:text-green-300 transition-colors font-medium"
+          > Heisenberg
+          </a>
+          {" "}— Preserving village stories, one landmark at a time.
+        </p>
+      </footer>
+    </main >
   );
 }
