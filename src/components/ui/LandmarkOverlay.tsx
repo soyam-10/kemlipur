@@ -4,6 +4,11 @@ import { useMapStore } from "@/store/mapStore";
 import { useLandmarkData } from "@/hooks/UseLandmarkData";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ChevronLeft, MapPin, Map, Newspaper, CalendarDays, Clock } from "lucide-react";
 
 export default function LandmarkOverlay() {
   const { activeLandmark, isOverlayOpen, closeOverlay } = useMapStore();
@@ -12,231 +17,239 @@ export default function LandmarkOverlay() {
   return (
     <AnimatePresence>
       {isOverlayOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="fixed inset-0 z-50 overflow-y-auto"
-          style={{ fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" }}
-        >
-          {/* Full bleed background image */}
-          <div className="relative min-h-screen">
+        <>
+          {/* Dramatic flash/ripple on open */}
+          <motion.div
+            initial={{ opacity: 0.6, scale: 0.95 }}
+            animate={{ opacity: 0, scale: 1.05 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="fixed inset-0 z-40 bg-white dark:bg-white pointer-events-none"
+          />
 
-            {/* Hero — full viewport image */}
-            <div className="relative w-full h-screen sticky top-0 overflow-hidden">
+          {/* Main overlay — slides up from bottom */}
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed inset-0 z-50 flex flex-col bg-background overflow-y-auto"
+            style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}
+          >
+            {/* Fixed back bar */}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="fixed top-0 left-0 right-0 z-20 px-6 pt-6 pb-4 flex items-center justify-between"
+              style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)" }}
+            >
+              <Button
+                onClick={closeOverlay}
+                size="lg"
+                className="gap-2 rounded-full"
+                style={{
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </Button>
+
               {landmark && (
+                <Badge
+                  variant="outline"
+                  className="border-white/20 text-lg text-primary-foreground rounded-full px-3 py-1"
+                  style={{
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    background: "rgba(255,255,255,0.15)",
+                  }}
+                >
+                  {landmark.nepaliName}
+                </Badge>
+              )}
+            </motion.div>
+
+            {/* Hero image */}
+            <div className="relative w-full shrink-0" style={{ height: "70vh" }}>
+              {landmark ? (
                 <Image
                   src={landmark.coverImage}
                   alt={landmark.name}
                   fill
                   className="object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   priority
                 />
-              )}
-
-              {/* Gradient overlay — bottom heavy */}
-              <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
-
-              {/* Top bar — floating back button */}
-              <motion.div
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-                className="absolute top-0 left-0 right-0 px-6 pt-8 flex items-center justify-between"
-              >
-                <button
-                  onClick={closeOverlay}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:bg-white/10 active:scale-95"
-                  style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Back
-                </button>
-
-                {landmark && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-xs tracking-[0.2em] uppercase px-3 py-1.5 rounded-full"
-                    style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)" }}
-                  >
-                    {landmark.nepaliName}
-                  </motion.span>
-                )}
-              </motion.div>
-
-              {/* Hero text — bottom of image */}
-              {loading || !landmark ? (
-                <div className="absolute bottom-12 left-8 right-8">
-                  <div className="h-3 w-24 bg-white/10 rounded-full animate-pulse mb-4" />
-                  <div className="h-10 w-64 bg-white/10 rounded-xl animate-pulse" />
-                </div>
               ) : (
+                <div className="w-full h-full bg-muted animate-pulse" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
+              {landmark && (
                 <motion.div
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.25, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="absolute bottom-25 left-8 right-8"
+                  transition={{ delay: 0.35, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="absolute bottom-0 left-0 right-0 px-8 pb-10"
                 >
-                  <p className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <p className="text-xs tracking-[0.25em] uppercase mb-2 text-white/50">
                     Kemlipur · Dhanusha
                   </p>
-                  <h1 className="text-4xl md:text-6xl font-bold text-primary leading-tight tracking-tight">
+                  <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight tracking-tight">
                     {landmark.name}
                   </h1>
                 </motion.div>
               )}
+            </div>
 
-              {/* Scroll hint */}
+            {/* Content sheet */}
+            <div className="relative z-10 -mt-6 rounded-t-[2rem] bg-background shadow-2xl flex-1">
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.6 }}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.45, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                className="max-w-2xl mx-auto px-6 pt-5 pb-28 space-y-10"
               >
-                <span className="text-xs tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>Scroll</span>
-                <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "rgba(255,255,255,0.3)" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </motion.div>
+                <div className="flex justify-center">
+                  <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+                </div>
+
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-24 rounded-2xl bg-muted animate-pulse" />
+                    ))}
+                  </div>
+                ) : landmark ? (
+                  <>
+                    {/* About */}
+                    <section className="space-y-3">
+                      <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">About</p>
+                      <p className="text-base md:text-lg leading-relaxed font-light text-foreground/80">
+                        {landmark.description}
+                      </p>
+                    </section>
+
+                    {/* Location */}
+                    <section className="space-y-3">
+                      <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">Location</p>
+                      <div className="flex flex-wrap gap-3">
+                        <Card className="inline-flex border bg-muted/40">
+                          <CardContent className="flex items-center gap-3 px-5 py-3">
+                            <MapPin className="w-4 h-4 text-green-500 shrink-0" />
+                            <span className="text-sm font-mono text-muted-foreground">
+                              {landmark.lat.toFixed(6)}° N · {landmark.lng.toFixed(6)}° E
+                            </span>
+                          </CardContent>
+                        </Card>
+                        <Button asChild className="gap-2 rounded-xl bg-green-600 hover:bg-green-500 text-white">
+                          <a
+                            href={`https://www.google.com/maps?q=${landmark.lat},${landmark.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Map className="w-4 h-4" />
+                            View in Maps
+                          </a>
+                        </Button>
+                      </div>
+                    </section>
+
+                    <Separator />
+
+                    {/* News */}
+                    <section className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Newspaper className="w-4 h-4 text-muted-foreground" />
+                        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">Latest News</p>
+                      </div>
+                      {news.length > 0 ? (
+                        <div className="space-y-3">
+                          {news.map((item, i) => (
+                            <motion.div
+                              key={item._id}
+                              initial={{ opacity: 0, y: 16 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.08 * i }}
+                            >
+                              <Card className="border bg-card hover:bg-muted/30 transition-colors duration-200">
+                                <CardContent className="p-5 space-y-2.5">
+                                  <Badge variant="secondary" className="capitalize text-xs">
+                                    {item.category}
+                                  </Badge>
+                                  <CardTitle className="text-base font-semibold leading-snug">{item.title}</CardTitle>
+                                  <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                                </CardContent>
+                              </Card>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <Card className="border border-dashed bg-muted/20">
+                          <CardContent className="py-10 text-center">
+                            <Newspaper className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground">No news yet. Check back soon.</p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </section>
+
+                    <Separator />
+
+                    {/* Events */}
+                    <section className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">Upcoming Events</p>
+                      </div>
+                      {events.length > 0 ? (
+                        <div className="space-y-3">
+                          {events.map((event, i) => (
+                            <motion.div
+                              key={event._id}
+                              initial={{ opacity: 0, y: 16 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.08 * i }}
+                            >
+                              <Card className="border bg-card hover:bg-muted/30 transition-colors duration-200">
+                                <CardContent className="p-5 space-y-2">
+                                  <div className="flex items-start justify-between gap-4">
+                                    <CardTitle className="text-base font-semibold leading-snug">{event.title}</CardTitle>
+                                    <Badge variant="outline" className="shrink-0 gap-1.5 text-xs">
+                                      <Clock className="w-3 h-3" />
+                                      {event.date}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm leading-relaxed text-muted-foreground">{event.description}</p>
+                                </CardContent>
+                              </Card>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <Card className="border border-dashed bg-muted/20">
+                          <CardContent className="py-10 text-center">
+                            <CalendarDays className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground">No upcoming events.</p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </section>
+
+                    <div className="text-center pt-4">
+                      <p className="text-xs text-muted-foreground/50">Kemlipur Village · Dhalkebar, Dhanusha, Nepal</p>
+                    </div>
+                  </>
+                ) : null}
               </motion.div>
             </div>
-
-            {/* Content — slides up over the image */}
-            <div className="relative z-10 -mt-24 bg-black rounded-t-[2.5rem] min-h-screen">
-              {!loading && landmark && (
-                <motion.div
-                  initial={{ y: 40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="max-w-2xl mx-auto px-6 pt-10 pb-24 space-y-12"
-                >
-                  {/* Drag handle */}
-                  <div className="flex justify-center -mt-2">
-                    <div className="w-10 h-1 rounded-full bg-white/20" />
-                  </div>
-
-                  {/* About */}
-                  <section className="space-y-4">
-                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>About</p>
-                    <p className="text-lg leading-relaxed font-light" style={{ color: "rgba(255,255,255,0.85)" }}>
-                      {landmark.description}
-                    </p>
-                  </section>
-
-                  {/* Location pill */}
-                  <section>
-                    <div
-                      className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl"
-                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="text-sm font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
-                        {Math.abs(landmark.lat).toFixed(6)}° N &nbsp;·&nbsp; {Math.abs(landmark.lng).toFixed(6)}° E
-                      </span>
-                    </div>
-                  </section>
-
-                  {/* Divider */}
-                  <div className="h-px w-full" style={{ background: "rgba(255,255,255,0.06)" }} />
-
-                  {/* News */}
-                  <section className="space-y-5">
-                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Latest News</p>
-                    {news.length > 0 ? (
-                      <div className="space-y-3">
-                        {news.map((item, i) => (
-                          <motion.div
-                            key={item._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 * i }}
-                            className="p-5 rounded-2xl space-y-2.5"
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-                          >
-                            <span
-                              className="inline-block text-xs px-2.5 py-1 rounded-full capitalize tracking-wide"
-                              style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.2)" }}
-                            >
-                              {item.category}
-                            </span>
-                            <h3 className="font-semibold text-white">{item.title}</h3>
-                            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{item.body}</p>
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div
-                        className="py-10 rounded-2xl text-center"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                      >
-                        <p className="text-sm text-muted-foreground">No news yet. Check back soon.</p>
-                      </div>
-                    )}
-                  </section>
-
-                  {/* Events */}
-                  <section className="space-y-5">
-                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Upcoming Events</p>
-                    {events.length > 0 ? (
-                      <div className="space-y-3">
-                        {events.map((event, i) => (
-                          <motion.div
-                            key={event._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 * i }}
-                            className="p-5 rounded-2xl space-y-2.5"
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <h3 className="font-semibold text-white">{event.title}</h3>
-                              <span
-                                className="text-xs px-2.5 py-1 rounded-full shrink-0"
-                                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}
-                              >
-                                {event.date}
-                              </span>
-                            </div>
-                            <p className="text-sm leading-relaxed text-muted-foreground">{event.description}</p>
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div
-                        className="py-10 rounded-2xl text-center"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                      >
-                        <p className="text-sm text-muted-foreground">No upcoming events.</p>
-                      </div>
-                    )}
-                  </section>
-
-                  {/* Footer credit */}
-                  <div className="text-center pt-6">
-                    <p className="text-xs text-muted-foreground">
-                      Kemlipur Village · Dhalkebar, Dhanusha, Nepal
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

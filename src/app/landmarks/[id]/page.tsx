@@ -87,9 +87,9 @@ export default function LandmarkPage() {
                 style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)" }}
             >
                 <Button
-                    onClick={() => router.push("/")}
-                    size="sm"
-                    className="gap-2 rounded-full text-white hover:text-white"
+                    onClick={router.back}
+                    size="lg"
+                    className="gap-2 rounded-full"
                     style={{
                         backdropFilter: "blur(20px)",
                         WebkitBackdropFilter: "blur(20px)",
@@ -101,17 +101,18 @@ export default function LandmarkPage() {
                     Back
                 </Button>
 
-                <Badge
-                    variant="outline"
-                    className="text-white/70 border-white/20 rounded-full px-3 py-1"
-                    style={{
-                        backdropFilter: "blur(20px)",
-                        WebkitBackdropFilter: "blur(20px)",
-                        background: "rgba(255,255,255,0.1)",
-                    }}
-                >
-                    {landmark.nepaliName}
-                </Badge>
+                {landmark && (
+                    <Badge
+                        variant="outline"
+                        className="border-white/20 text-lg text-primary-foreground rounded-full px-3 py-1"
+                        style={{
+                            backdropFilter: "blur(20px)",
+                            WebkitBackdropFilter: "blur(20px)",
+                            background: "rgba(255,255,255,0.15)",
+                        }}
+                    >
+                        {landmark.nepaliName}
+                    </Badge>)}
             </motion.div>
 
             {/* Hero image */}
