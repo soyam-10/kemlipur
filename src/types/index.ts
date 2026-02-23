@@ -4,9 +4,10 @@ export interface Landmark {
   nepaliName: string;
   description: string;
   position: [number, number, number];
+  lat: number;
+  lng: number;
   coverImage: string;
 }
-
 export interface Event {
   _id?: string;
   title: string;

@@ -16,109 +16,226 @@ export default function LandmarkOverlay() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="fixed inset-0 z-50 flex flex-col bg-black/80 backdrop-blur-md overflow-y-auto"
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          className="fixed inset-0 z-50 overflow-y-auto"
+          style={{ fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" }}
         >
-          {/* Back Button */}
-          <div className="sticky top-0 z-10 px-6 py-4 flex items-center gap-3 bg-black/60 backdrop-blur-sm border-b border-white/10">
-            <button
-              onClick={closeOverlay}
-              className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors group"
-            >
-              <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
-              Back to Village
-            </button>
-            {landmark && (
-              <>
-                <span className="text-white/20">|</span>
-                <span className="text-green-400 text-sm">{landmark.nepaliName}</span>
-              </>
-            )}
-          </div>
+          {/* Full bleed background image */}
+          <div className="relative min-h-screen">
 
-          {loading || !landmark ? (
-            /* Loading skeleton */
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-green-400 text-sm tracking-widest animate-pulse">Loading...</p>
-            </div>
-          ) : (
-            <>
-              {/* Hero Image */}
-              <div className="relative w-full h-72 md:h-96 bg-green-950/40 shrink-0">
+            {/* Hero — full viewport image */}
+            <div className="relative w-full h-screen sticky top-0 overflow-hidden">
+              {landmark && (
                 <Image
                   src={landmark.coverImage}
                   alt={landmark.name}
                   fill
-                  className="object-cover opacity-70"
+                  className="object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
+                  priority
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6">
-                  <p className="text-green-400 text-xs tracking-widest uppercase mb-1">Kemlipur</p>
-                  <h1 className="text-3xl md:text-4xl font-bold">{landmark.name}</h1>
-                </div>
-              </div>
+              )}
 
-              {/* Content */}
-              <div className="max-w-3xl mx-auto w-full px-6 py-10 space-y-10">
-                {/* About */}
-                <div className="space-y-3">
-                  <h2 className="text-green-400 text-xs tracking-widest uppercase">About</h2>
-                  <p className="text-gray-300 text-lg leading-relaxed">{landmark.description}</p>
-                </div>
+              {/* Gradient overlay — bottom heavy */}
+              <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
 
-                {/* Location */}
-                <div className="space-y-3">
-                  <h2 className="text-green-400 text-xs tracking-widest uppercase">Location</h2>
-                  <p className="text-gray-500 text-sm font-mono">
-                    {landmark.position[2]}° N, {landmark.position[0]}° E
+              {/* Top bar — floating back button */}
+              <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="absolute top-0 left-0 right-0 px-6 pt-8 flex items-center justify-between"
+              >
+                <button
+                  onClick={closeOverlay}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:bg-white/10 active:scale-95"
+                  style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
+                </button>
+
+                {landmark && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-xs tracking-[0.2em] uppercase px-3 py-1.5 rounded-full"
+                    style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)" }}
+                  >
+                    {landmark.nepaliName}
+                  </motion.span>
+                )}
+              </motion.div>
+
+              {/* Hero text — bottom of image */}
+              {loading || !landmark ? (
+                <div className="absolute bottom-12 left-8 right-8">
+                  <div className="h-3 w-24 bg-white/10 rounded-full animate-pulse mb-4" />
+                  <div className="h-10 w-64 bg-white/10 rounded-xl animate-pulse" />
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.25, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="absolute bottom-25 left-8 right-8"
+                >
+                  <p className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    Kemlipur · Dhanusha
                   </p>
-                </div>
+                  <h1 className="text-4xl md:text-6xl font-bold text-primary leading-tight tracking-tight">
+                    {landmark.name}
+                  </h1>
+                </motion.div>
+              )}
 
-                {/* News */}
-                <div className="space-y-4">
-                  <h2 className="text-green-400 text-xs tracking-widest uppercase">Latest News</h2>
-                  {news.length > 0 ? (
-                    news.map((item) => (
-                      <div key={item._id} className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs bg-green-900/60 text-green-300 px-2 py-0.5 rounded-full capitalize">
-                            {item.category}
-                          </span>
-                        </div>
-                        <h3 className="font-semibold">{item.title}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{item.body}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-6 py-8 text-center text-gray-500 text-sm">
-                      No news yet. Check back soon.
-                    </div>
-                  )}
-                </div>
+              {/* Scroll hint */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 0.6 }}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+              >
+                <span className="text-xs tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>Scroll</span>
+                <motion.div
+                  animate={{ y: [0, 6, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: "rgba(255,255,255,0.3)" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </motion.div>
+              </motion.div>
+            </div>
 
-                {/* Events */}
-                <div className="space-y-4">
-                  <h2 className="text-green-400 text-xs tracking-widest uppercase">Upcoming Events</h2>
-                  {events.length > 0 ? (
-                    events.map((event) => (
-                      <div key={event._id} className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-2">
-                        <h3 className="font-semibold">{event.title}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{event.description}</p>
-                        <p className="text-gray-600 text-xs">{event.date}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-6 py-8 text-center text-gray-500 text-sm">
-                      No upcoming events.
+            {/* Content — slides up over the image */}
+            <div className="relative z-10 -mt-24 bg-black rounded-t-[2.5rem] min-h-screen">
+              {!loading && landmark && (
+                <motion.div
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="max-w-2xl mx-auto px-6 pt-10 pb-24 space-y-12"
+                >
+                  {/* Drag handle */}
+                  <div className="flex justify-center -mt-2">
+                    <div className="w-10 h-1 rounded-full bg-white/20" />
+                  </div>
+
+                  {/* About */}
+                  <section className="space-y-4">
+                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>About</p>
+                    <p className="text-lg leading-relaxed font-light" style={{ color: "rgba(255,255,255,0.85)" }}>
+                      {landmark.description}
+                    </p>
+                  </section>
+
+                  {/* Location pill */}
+                  <section>
+                    <div
+                      className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl"
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
+                        {Math.abs(landmark.lat).toFixed(6)}° N &nbsp;·&nbsp; {Math.abs(landmark.lng).toFixed(6)}° E
+                      </span>
                     </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+                  </section>
+
+                  {/* Divider */}
+                  <div className="h-px w-full" style={{ background: "rgba(255,255,255,0.06)" }} />
+
+                  {/* News */}
+                  <section className="space-y-5">
+                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Latest News</p>
+                    {news.length > 0 ? (
+                      <div className="space-y-3">
+                        {news.map((item, i) => (
+                          <motion.div
+                            key={item._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 * i }}
+                            className="p-5 rounded-2xl space-y-2.5"
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                          >
+                            <span
+                              className="inline-block text-xs px-2.5 py-1 rounded-full capitalize tracking-wide"
+                              style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.2)" }}
+                            >
+                              {item.category}
+                            </span>
+                            <h3 className="font-semibold text-white">{item.title}</h3>
+                            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{item.body}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className="py-10 rounded-2xl text-center"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      >
+                        <p className="text-sm text-muted-foreground">No news yet. Check back soon.</p>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Events */}
+                  <section className="space-y-5">
+                    <p className="text-xs tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Upcoming Events</p>
+                    {events.length > 0 ? (
+                      <div className="space-y-3">
+                        {events.map((event, i) => (
+                          <motion.div
+                            key={event._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 * i }}
+                            className="p-5 rounded-2xl space-y-2.5"
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <h3 className="font-semibold text-white">{event.title}</h3>
+                              <span
+                                className="text-xs px-2.5 py-1 rounded-full shrink-0"
+                                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}
+                              >
+                                {event.date}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-relaxed text-muted-foreground">{event.description}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className="py-10 rounded-2xl text-center"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      >
+                        <p className="text-sm text-muted-foreground">No upcoming events.</p>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Footer credit */}
+                  <div className="text-center pt-6">
+                    <p className="text-xs text-muted-foreground">
+                      Kemlipur Village · Dhalkebar, Dhanusha, Nepal
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

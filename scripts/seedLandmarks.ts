@@ -8,6 +8,8 @@ const LandmarkSchema = new mongoose.Schema(
     nepaliName: { type: String, required: true },
     description: { type: String, required: true },
     position: { type: [Number], required: true },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
     coverImage: { type: String, required: true },
   },
   { timestamps: true }
@@ -16,7 +18,6 @@ const LandmarkSchema = new mongoose.Schema(
 async function seedLandmarks() {
   await mongoose.connect(process.env.MONGODB_URI as string);
 
-  // Drop the entire collection to remove stale indexes
   try {
     await mongoose.connection.dropCollection("landmarks");
     console.log("🗑️  Dropped landmarks collection (stale indexes removed)");
@@ -25,7 +26,6 @@ async function seedLandmarks() {
   }
 
   const LandmarkModel = mongoose.model("Landmark", LandmarkSchema);
-
   const { landmarks } = await import("../src/data/landmarks");
 
   for (const landmark of landmarks) {
