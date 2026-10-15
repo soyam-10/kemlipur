@@ -7,7 +7,7 @@ import Terrain from "./Terrain";
 import LandmarkMarker from "./LandmarkMarker";
 import CameraController from "./CameraController";
 import { Landmark } from "@/types";
-import { Color } from "three";
+import { Color, PCFShadowMap } from "three";
 
 export default function MapCanvas() {
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
@@ -23,7 +23,7 @@ export default function MapCanvas() {
       <Canvas
         camera={{ position: [0, 8, 6], fov: 50, near: 0.1, far: 200 }}
         gl={{ antialias: true, alpha: false }}
-        shadows
+        shadows={{ type: PCFShadowMap }}
         scene={{ background: new Color("#0a0f1a") }}
       >
         {/* Atmosphere fog */}

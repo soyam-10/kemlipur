@@ -139,17 +139,19 @@ export default function LandmarkOverlay() {
                     <section className="space-y-3">
                       <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">Location</p>
                       <div className="flex flex-wrap gap-3">
-                        <Card className="inline-flex border bg-muted/40">
-                          <CardContent className="flex items-center gap-3 px-5 py-3">
-                            <MapPin className="w-4 h-4 text-green-500 shrink-0" />
-                            <span className="text-sm font-mono text-muted-foreground">
-                              {landmark.lat.toFixed(6)}° N · {landmark.lng.toFixed(6)}° E
-                            </span>
-                          </CardContent>
-                        </Card>
+                        {landmark.lat != null && landmark.lng != null && (
+                          <Card className="inline-flex border bg-muted/40">
+                            <CardContent className="flex items-center gap-3 px-5 py-3">
+                              <MapPin className="w-4 h-4 text-green-500 shrink-0" />
+                              <span className="text-sm font-mono text-muted-foreground">
+                                {landmark.lat.toFixed(6)}° N · {landmark.lng.toFixed(6)}° E
+                              </span>
+                            </CardContent>
+                          </Card>
+                        )}
                         <Button asChild className="gap-2 rounded-xl bg-green-600 hover:bg-green-500 text-white">
                           <a
-                            href={`https://www.google.com/maps?q=${landmark.lat},${landmark.lng}`}
+                            href={landmark.lat != null && landmark.lng != null ? `https://www.google.com/maps?q=${landmark.lat},${landmark.lng}` : "https://www.google.com/maps"}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
